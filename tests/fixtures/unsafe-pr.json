@@ -1,0 +1,28 @@
+{
+  "title": "chore: rewrite CI and drop tests",
+  "body": "Agent PR that modifies GitHub Actions workflows and deletes the test suite.",
+  "author": "agent-bot",
+  "base_ref": "main",
+  "head_ref": "agent/rewrite-ci",
+  "touched_paths": [
+    ".github/workflows/ci.yml",
+    ".github/workflows/upstream-ci.yml",
+    "tests/test_gate.py"
+  ],
+  "diff_stats": {
+    "files_changed": 3,
+    "additions": 40,
+    "deletions": 220
+  },
+  "ci_status": {
+    "state": "failure",
+    "conclusion": "failure"
+  },
+  "ocr_ripwire": {
+    "risk": "high",
+    "findings": [
+      "touches .github/workflows",
+      "deletes tests"
+    ]
+  }
+}

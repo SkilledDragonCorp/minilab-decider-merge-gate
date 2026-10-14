@@ -1,0 +1,116 @@
+#!/usr/bin/env python3
+"""Regenerate scripts/upstream-test.sh and fail on drift; parity-check upstream-ci.yml."""
+
+from __future__ import annotations
+
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+PIN = "8b6faa553038a59e73fa7f16c4081f8ceb21d27e"
+UPSTREAM_YML = ROOT / "ci" / "upstream" / "tests.yml"
+LAB_YML = ROOT / ".github" / "workflows" / "upstream-ci.yml"
+SCRIPT = ROOT / "scripts" / "upstream-test.sh"
+EXTRACT = ROOT / "scripts" / "extract_upstream_steps.py"
+
+# Allowed deviation markers (A1/A2) that may appear in lab workflow only.
+ALLOWED_LAB_ONLY = (
+    "submodules: true",
+    "working-directory: upstream",
+    "files: upstream/coverage.xml",
+    "upstream/**",
+    ".github/workflows/upstream-ci.yml",
+)
+
+
+def extract_run_commands(yml_text: str) -> list[str]:
+    """Collect normalized `run:` command strings (single-line and block)."""
+    lines = yml_text.splitlines()
+    cmds: list[str] = []
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        m = re.match(r"^(\s*)run:\s*(.*)$", line)
+        if not m:
+            i += 1
+            continue
+        indent = len(m.group(1))
+        rest = m.group(2).strip()
+        if rest in ("|", ">"):
+            block: list[str] = []
+            i += 1
+            while i < len(lines):
+                nxt = lines[i]
+                nxt_indent = len(nxt) - len(nxt.lstrip(" "))
+                if nxt.strip() == "":
+                    block.append("")
+                    i += 1
+                    continue
+                if nxt_indent <= indent:
+                    break
+                block.append(nxt[indent + 2 :] if len(nxt) > indent + 2 else nxt.lstrip())
+                i += 1
+            cmds.append("\n".join(block).strip())
+            continue
+        if rest:
+            cmds.append(rest)
+        i += 1
+    return cmds
+
+
+def main() -> int:
+    errors: list[str] = []
+
+    # 1) Regenerate local runner and fail on drift
+    before = SCRIPT.read_text(encoding="utf-8") if SCRIPT.is_file() else ""
+    proc = subprocess.run(
+        [sys.executable, str(EXTRACT)],
+        cwd=ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if proc.returncode != 0:
+        print(proc.stdout)
+        print(proc.stderr, file=sys.stderr)
+        return proc.returncode
+    after = SCRIPT.read_text(encoding="utf-8")
+    if after != before:
+        # Keep regenerated file; fail so CI notices drift of committed script.
+        errors.append("scripts/upstream-test.sh drifted; re-run extract_upstream_steps.py and commit")
+
+    # 2) Diff run: commands: lab must contain every upstream run (verbatim body)
+    upstream_runs = extract_run_commands(UPSTREAM_YML.read_text(encoding="utf-8"))
+    lab_text = LAB_YML.read_text(encoding="utf-8")
+    lab_runs = extract_run_commands(lab_text)
+    lab_joined = "\n---\n".join(lab_runs)
+    for cmd in upstream_runs:
+        # working-directory is A1; command body must still match
+        if cmd not in lab_joined and cmd.strip() not in lab_joined:
+            errors.append(f"upstream run missing from lab workflow: {cmd!r}")
+
+    # 3) Pin must appear in workflow and local script
+    if PIN not in SCRIPT.read_text(encoding="utf-8"):
+        errors.append(f"pin {PIN} missing from scripts/upstream-test.sh")
+    if "HF_HUB_OFFLINE" not in lab_text:
+        errors.append("HF_HUB_OFFLINE missing from upstream-ci.yml")
+    for marker in ("submodules: true", "working-directory: upstream"):
+        if marker not in lab_text:
+            errors.append(f"allowed deviation missing: {marker}")
+
+    # silence unused
+    _ = ALLOWED_LAB_ONLY
+
+    if errors:
+        print("upstream-parity FAILED:", file=sys.stderr)
+        for err in errors:
+            print(f"  - {err}", file=sys.stderr)
+        return 1
+    print("upstream-parity OK")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

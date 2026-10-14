@@ -1,0 +1,70 @@
+# Secrets and local env
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.crt
+*.cer
+*.pfx
+id_rsa*
+credentials.json
+secrets/
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.uv-cache/
+dist/
+build/
+out/
+coverage/
+*.lcov
+coverage.xml
+.coverage
+
+# Upstream build dirs
+upstream/build/
+upstream/target/
+upstream/node_modules/
+upstream/.venv/
+upstream/dist/
+upstream/.pytest_cache/
+upstream/.ruff_cache/
+upstream/.mypy_cache/
+upstream/coverage.xml
+upstream/.coverage
+
+# Node (not used by this lab; ignore if dropped accidentally)
+node_modules/
+.bun/
+bun.lockb.bak
+
+# Caches and logs
+.cache/
+.tmp/
+tmp/
+logs/
+*.log
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Forbidden skill mirrors (canonical path only)
+.agents/
+.cursor/skills/
+
+# Gitleaks local cache
+.gitleaks/
+tools/gitleaks
