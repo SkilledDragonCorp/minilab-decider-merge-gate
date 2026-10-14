@@ -132,7 +132,8 @@ jobs:
           uv export --frozen --format requirements-txt --no-emit-project --group gate > /tmp/req.txt
           # pip-audit cannot hash VCS repositories; drop the pinned git line.
           # strands-decider pin is asserted by scripts/check-upstream-pin.
-          grep -v ' @ git+' /tmp/req.txt > /tmp/req-pypi.txt
+          # PyPI publishes torch without the +cpu local version tag from the CPU index.
+          grep -v ' @ git+' /tmp/req.txt | sed 's/+cpu//' > /tmp/req-pypi.txt
           uvx pip-audit --strict -r /tmp/req-pypi.txt
 
   live:
