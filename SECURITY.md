@@ -33,7 +33,7 @@ Only the commit currently on `main` is considered current for this educational l
 | --- | --- |
 | Upstream | `strands-labs/strands-decider` @ `8b6faa553038a59e73fa7f16c4081f8ceb21d27e` (Apache-2.0) |
 | gitleaks | `v8.30.1` (pre-commit hook + CI binary with SHA256 verify) |
-| Dependency audit | `uv export --frozen --format requirements-txt --no-emit-project --group gate > /tmp/req.txt`, drop VCS lines with `grep -v ' @ git+'`, then `uvx pip-audit --strict -r /tmp/req-pypi.txt` |
+| Dependency audit | `uv export --frozen --format requirements-txt --no-emit-project --group gate --no-hashes > /tmp/req.txt`, drop VCS lines with `grep -v ' @ git+'`, strip `+cpu` with `sed`, then `uvx pip-audit --strict -r /tmp/req-pypi.txt` |
 
 ## Upstream license
 
