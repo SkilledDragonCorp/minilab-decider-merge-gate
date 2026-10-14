@@ -129,7 +129,8 @@ jobs:
 
       - name: pip-audit
         run: |
-          uv export --frozen --format requirements-txt --no-emit-project --group gate > /tmp/req.txt
+          # --no-hashes: CPU-index torch hashes differ from PyPI wheels pip-audit resolves.
+          uv export --frozen --format requirements-txt --no-emit-project --group gate --no-hashes > /tmp/req.txt
           # pip-audit cannot hash VCS repositories; drop the pinned git line.
           # strands-decider pin is asserted by scripts/check-upstream-pin.
           # PyPI publishes torch without the +cpu local version tag from the CPU index.
