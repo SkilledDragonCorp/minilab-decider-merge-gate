@@ -130,7 +130,10 @@ jobs:
       - name: pip-audit
         run: |
           uv export --frozen --format requirements-txt --no-emit-project --group gate > /tmp/req.txt
-          uvx pip-audit --strict -r /tmp/req.txt
+          # pip-audit cannot hash VCS repositories; drop the pinned git line.
+          # strands-decider pin is asserted by scripts/check-upstream-pin.
+          grep -v ' @ git+' /tmp/req.txt > /tmp/req-pypi.txt
+          uvx pip-audit --strict -r /tmp/req-pypi.txt
 
   live:
     name: live (optional model)
