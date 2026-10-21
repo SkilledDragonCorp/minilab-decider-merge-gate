@@ -1,0 +1,70 @@
+{
+  "lab": "minilab-decider-merge-gate",
+  "sha": "2f8a1db6252a13ce8ab45d614a3eaf264f292518",
+  "sha_short": "2f8a1db",
+  "pin": "8b6faa553038a59e73fa7f16c4081f8ceb21d27e",
+  "pin_short": "8b6faa55",
+  "upstream": "strands-labs/strands-decider",
+  "keyless": true,
+  "generated_at": "2026-10-14T07:14:00Z",
+  "host": "darwin",
+  "note": "Local keyless pytest 12 passed, 1 deselected (live). Fake decider CLI: deny + escalate paths. Upstream pin verified; CI lab + upstream-ci green.",
+  "checks": {
+    "pytest": {
+      "passed": 12,
+      "failed": 0,
+      "deselected_live": 1,
+      "duration_s": 1.43
+    },
+    "ruff_check": "pass",
+    "skills_layout": "pass",
+    "banned_phrases": "pass",
+    "upstream_pin": "8b6faa553038a59e73fa7f16c4081f8ceb21d27e",
+    "upstream_parity": "pass",
+    "cli_fake_deny": {
+      "decision": "deny",
+      "confidence": 0.91,
+      "exit": 1
+    },
+    "cli_fake_escalate": {
+      "decision": "escalate",
+      "confidence": 0.42,
+      "exit": 3,
+      "threshold": 0.8
+    }
+  },
+  "ci": {
+    "run_id": 38521977573,
+    "url": "https://github.com/SkilledDragonCorp/minilab-decider-merge-gate/actions/runs/38521977573",
+    "status": "completed",
+    "conclusion": "success",
+    "head_sha": "2f8a1db6252a13ce8ab45d614a3eaf264f292518",
+    "jobs": {
+      "lint": {
+        "conclusion": "success",
+        "duration_s": 13
+      },
+      "test": {
+        "conclusion": "success",
+        "duration_s": 10
+      },
+      "skills-layout": {
+        "conclusion": "success",
+        "duration_s": 3
+      },
+      "secrets": {
+        "conclusion": "success",
+        "duration_s": 6
+      },
+      "audit": {
+        "conclusion": "success",
+        "duration_s": 29
+      },
+      "live (optional model)": {
+        "conclusion": "success",
+        "duration_s": 54
+      }
+    },
+    "upstream_ci_note": "Also green: run 38520905143 (upstream-parity, cpu, mac, lint) per RESULTS.md"
+  }
+}
